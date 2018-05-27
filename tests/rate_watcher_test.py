@@ -7,7 +7,7 @@ import time
 import unittest
 
 from sacad.rate_watcher import AccessRateWatcher
-from . import sched_and_run
+from tests import sched_and_run
 
 
 ALMOST_NO_TIME = 0.05
