@@ -65,9 +65,9 @@ Arch Linux users can install the [sacad](https://aur.archlinux.org/packages/saca
 
 ### From source
 
-1. If you don't already have it, [install setuptools](https://pypi.python.org/pypi/setuptools#installation-instructions) for Python 3
-2. Clone this repository: `git clone https://github.com/desbma/sacad`
-3. Install SACAD: `python3 setup.py install`
+1. Clone this repository: `git clone https://github.com/desbma/sacad`
+2. Install [Poetry](https://poetry.eustace.io/docs/#installation): `curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python3`
+3. Install SACAD: `poetry install`
 
 #### Optional
 
