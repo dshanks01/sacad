@@ -13,6 +13,7 @@ DOWNLOAD_DIR            ?= dl
 PYTHON_INSTALLER-win32  := ${DOWNLOAD_DIR}/python-${PYTHON_VERSION_DL}.exe
 PYTHON_INSTALLER-win64  := ${DOWNLOAD_DIR}/python-${PYTHON_VERSION_DL}-amd64.exe
 PYTHON_INSTALLER        := ${PYTHON_INSTALLER-${WINEARCH}}
+POETRY_INSTALLER        := ${DOWNLOAD_DIR}/get-poetry.py
 CXFREEZE_WHEEL-win32    := ${DOWNLOAD_DIR}/cx_Freeze-${CXFREEZE_VERSION}-cp${PYTHON_VERSION_SHORT}-cp${PYTHON_VERSION_SHORT}m-${WINEARCH}.whl
 CXFREEZE_WHEEL-win64    := ${DOWNLOAD_DIR}/cx_Freeze-${CXFREEZE_VERSION}-cp${PYTHON_VERSION_SHORT}-cp${PYTHON_VERSION_SHORT}m-win_amd64.whl
 CXFREEZE_WHEEL          := ${CXFREEZE_WHEEL-${WINEARCH}}
@@ -29,7 +30,7 @@ WINE     := mkdir -p $(dir ${WINE_DIR}) && WINEPREFIX=${WINE_DIR} WINEARCH=${WIN
 # installed files
 PYTHON_INSTALLED   := ${WINE_DIR}/drive_c/Python${PYTHON_VERSION_SHORT}/python.exe
 CXFREEZE_INSTALLED := ${WINE_DIR}/drive_c/Python${PYTHON_VERSION_SHORT}/Scripts/cxfreeze
-PIP_INSTALLED      := ${WINE_DIR}/drive_c/Python${PYTHON_VERSION_SHORT}/Scripts/pip.exe
+POETRY_INSTALLED   := ${WINE_DIR}/drive_c/Python${PYTHON_VERSION_SHORT}/Scripts/poetry.exe
 LXML_INSTALLED     := ${WINE_DIR}/drive_c/Python${PYTHON_VERSION_SHORT}/Lib/site-packages/lxml/__init__.py
 7ZIP_INSTALLED     := ${WINE_DIR}/drive_c/7-Zip/7z.sfx
 
@@ -96,7 +97,7 @@ ${OUTPUT_DIR}/readme.txt:
 #
 
 test_ut: ${LXML_INSTALLED} .requirements
-	cd .. && ${WINE} ${PYTHON_INSTALLED} setup.py test
+	cd .. && ${WINE} ${POETRY_INSTALLED} run python -m unittest discover -s tests -p '*.py' -fcv
 
 test_freeze:: ${TEST_LIB_DIR}/test.jpg ${TEST_LIB_DIR}/test.png
 
@@ -116,23 +117,23 @@ ${TEST_LIB_DIR}/test.png: ${TEST_LIB_DIR}/sample.ogg ${OUTPUT_DIR}/sacad_r.exe $
 # Installations
 #
 
-.requirements: ${PIP_INSTALLED}
-	cd .. && ${WINE} ${PYTHON_INSTALLED} -m pip -qqq install -r requirements.txt
+.requirements: ${POETRY_INSTALLED}
+	cd .. && ${WINE} ${POETRY_INSTALLED} install
 	touch $@
 
 ${PYTHON_INSTALLED}: ${PYTHON_INSTALLER}
 	${WINE} $< /quiet InstallAllUsers=1 TargetDir=$(dir ${PYTHON_INSTALLED})
 	touch $@
 
-${CXFREEZE_INSTALLED}: ${CXFREEZE_WHEEL} ${PIP_INSTALLED} ${PYTHON_INSTALLED}
+${CXFREEZE_INSTALLED}: ${CXFREEZE_WHEEL} ${PYTHON_INSTALLED}
 	${WINE} ${PYTHON_INSTALLED} -m pip -qqq install $<
 	touch $@
 
-${PIP_INSTALLED}: ${PYTHON_INSTALLED}
-	${WINE} ${PYTHON_INSTALLED} -m pip -qqq install -U pip
+${POETRY_INSTALLED}: ${POETRY_INSTALLER} ${PYTHON_INSTALLED}
+	${WINE} ${PYTHON_INSTALLED} ${POETRY_INSTALLER}
 	touch $@
 
-${LXML_INSTALLED}: ${LXML_WHEEL} ${PIP_INSTALLED} ${PYTHON_INSTALLED}
+${LXML_INSTALLED}: ${LXML_WHEEL} ${PYTHON_INSTALLED}
 	${WINE} ${PYTHON_INSTALLED} -m pip -qqq install $<
 	touch $@
 
@@ -148,6 +149,10 @@ ${7ZIP_INSTALLED}: ${7ZIP_INSTALLER}
 ${PYTHON_INSTALLER}:
 	mkdir -p $(dir $@)
 	${CURL} https://www.python.org/ftp/python/${PYTHON_VERSION}/$(notdir $@) > $@
+
+${POETRY_INSTALLER}:
+	mkdir -p $(dir $@)
+	${CURL} https://raw.githubusercontent.com/sdispater/poetry/master/$(notdir $@) > $@
 
 ${CXFREEZE_WHEEL-win32}:
 	mkdir -p $(dir $@)
