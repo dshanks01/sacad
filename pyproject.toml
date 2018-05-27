@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "sacad"
+version = "2.1.1"
+description = "Search and download music album covers"
+license = "MPL-2.0"
+authors = ["desbma"]
+readme = "README.md"
+homepage = "https://github.com/desbma/sacad"
+keywords = ["download", "album", "cover", "art", "albumart"]
+
+[package]
+exclude = ["tests"]
+
+[tool.poetry.dependencies]
+python = "^3.5"
+aiohttp = "^3.2"
+appdirs = "^1.4"
+cssselect = "^1.0"
+lxml = "^4.2"
+mutagen = "^1.40"
+pillow = "^5.1"
+tqdm = "^4.23"
+web_cache = "^1.0"
+
+[tool.poetry.dev-dependencies]
+requests = "^2.18"
+
+[tool.poetry.scripts]
+sacad = "sacad:cl_main"
+sacad_r = "sacad.recurse:cl_main"
